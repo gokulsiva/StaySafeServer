@@ -18,7 +18,7 @@ exports.user_create_get = function(req, res) {
 exports.user_authenticate_post = function(req, res) {
 	res.setHeader('Content-Type', 'application/json');
 	var resultObj = {'status':'', 'msg':{}, 'user':{}};
-	var authUser = {id:'', name:'', email:'', dob:'', contact_no:9876543210, gender:''}
+	var authUser = {id:'', name:'', email:'', dob:'', mpin:'', contact_no:9876543210, gender:'', fbaseToken: ''}
 	var body = req.body;
 	var email = body.email;
 	var password = body.password;
@@ -28,19 +28,12 @@ exports.user_authenticate_post = function(req, res) {
 			if(!user){
 				resultObj.msg = "Invalid email/password.";
 			} else {
-				resultObj.msg = "Error saving data.";
+				resultObj.msg = "Error retriving data.";
 			}
 		} else {
 			resultObj.status = 'success';
 			resultObj.msg = 'User authenticated.';
-			var userJson = JSON.parse(JSON.stringify(user));
-			authUser.id = userJson._id;
-			authUser.name = userJson.name;
-			authUser.email = userJson.email;
-			var date = new Date(userJson.dob);
-			authUser.dob = (date.getMonth() + 1)+'-'+date.getDate()+'-'+date.getYear();
-			authUser.contact_no = userJson.contact_no;
-			authUser.gender = userJson.gender;
+			authUser = user.userObj;
 		}
 		resultObj.user = authUser;
 		res.send(JSON.stringify(resultObj));
@@ -55,10 +48,11 @@ exports.user_create_post = function(req, res) {
 	var name = body.name;
 	var email = body.email;
 	var password = body.password;
+	var mpin = body.mpin;
 	var gender = body.gender;
 	var dob = new Date(body.dob);
 	var contact_no = body.contact_no;
-	var newUser = new User({'name':name, 'email':email, 'password':password, 'gender': gender, 'dob':dob, 'contact_no':contact_no});
+	var newUser = new User({'name':name, 'email':email, 'password':password, 'mpin':mpin, 'gender': gender, 'dob':dob, 'contact_no': contact_no, 'fbaseToken': ''});
 
 	newUser.save(function(err, newUser){
 		if (err) {
@@ -96,3 +90,58 @@ exports.user_update_get = function(req, res) {
 exports.user_update_post = function(req, res) {
     res.send('NOT IMPLEMENTED: User update POST');
 };
+
+// Post request to update fbaseToken
+exports.user_update_fbaseToken = function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
+	var resultObj = {'status':'', 'msg':{}, 'fbaseToken':''};
+	var body = req.body;
+	var id = body.id;
+	var newtoken = body.fbaseToken || '';
+	User.findById(id, function (err, user) {
+	  if (err) {
+	  	resultObj.status = 'failure';
+	  	resultObj.msg = JSON.stringify(err);
+	  } else {
+		  	user.fbaseToken = newtoken;
+		  	user.save(function (err, updatedUser) {
+		    if (err) {
+		    	resultObj.status = 'failure';
+		  		resultObj.msg = JSON.stringify(err);
+		    } else {
+		    	resultObj.status = 'success';
+		    	resultObj.msg = 'successfully updated user fbaseToken.'
+		    	resultObj.fbaseToken = user.fbaseToken;
+		    }
+		    res.send(JSON.stringify(resultObj));
+	  });
+	  }
+	});
+}
+
+// Post request to update fbaseToken
+exports.user_update_guardianId = function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
+	var resultObj = {'status':'', 'msg':{}};
+	var body = req.body;
+	var id = body.userId;
+	var guardianId = body.guardianId || '';
+	User.findById(id, function (err, user) {
+	  if (err) {
+	  	resultObj.status = 'failure';
+	  	resultObj.msg = JSON.stringify(err);
+	  } else {
+		  	user.guardianId = guardianId;
+		  	user.save(function (err, updatedUser) {
+		    if (err) {
+		    	resultObj.status = 'failure';
+		  		resultObj.msg = JSON.stringify(err);
+		    } else {
+		    	resultObj.status = 'success';
+		    	resultObj.msg = 'successfully updated.'
+		    }
+		    res.send(JSON.stringify(resultObj));
+	  });
+	  }
+	});
+}

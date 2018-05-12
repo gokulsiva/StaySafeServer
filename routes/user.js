@@ -38,6 +38,11 @@ router.get('/:id', user_controller.user_detail);
 // GET request for list of all Users.
 router.get('/all', user_controller.user_list);
 
+// Post request to update fbase request
+router.post('/updateFbaseToken', user_controller.user_update_fbaseToken);
+
+// Post request to update fbase request
+router.post('/updateGuardianId', user_controller.user_update_guardianId);
 
 
 module.exports = router;
