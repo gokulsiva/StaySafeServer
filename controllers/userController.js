@@ -1,4 +1,5 @@
 var User = require('../models/user');
+var nodemailer = require('nodemailer');
 
 // Display list of all Users.
 exports.user_list = function(req, res) {
@@ -116,6 +117,41 @@ exports.user_update_fbaseToken = function(req, res) {
 		    res.send(JSON.stringify(resultObj));
 	  });
 	  }
+	});
+}
+
+// Post request to send panic alerts
+exports.user_panic = function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
+	var resultObj = {'status':'failre', 'msg':"Unable to send."};
+	var body = req.body;
+	// var userId = body.userId;
+	// var panic = body.panic;
+	// var location = body.location;
+	//TODO: Email notification
+	var transporter = nodemailer.createTransport({
+	  service: 'gmail',
+	  auth: {
+	    user: 'userEmail',
+	    pass: 'userPass'
+	  }
+	});
+
+	var mailOptions = {
+	  from: 'userEmail',
+	  to: 'receiverEmail',
+	  subject: '!Danger: In troble....',
+	  text: 'User is in danger. His location is lat:XX.XX, long:XX.XX'
+	};
+
+	transporter.sendMail(mailOptions, function(error, info){
+	  if (error) {
+	    
+	  } else {
+	    resultObj.status = "success";
+	    resultObj.msg = "Seccessfully sent."
+	  }
+	  res.send(JSON.stringify(resultObj));
 	});
 }
 

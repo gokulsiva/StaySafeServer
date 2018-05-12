@@ -44,5 +44,8 @@ router.post('/updateFbaseToken', user_controller.user_update_fbaseToken);
 // Post request to update fbase request
 router.post('/updateGuardianId', user_controller.user_update_guardianId);
 
+// Post request to send panic alerts
+router.post('/panic', user_controller.user_panic);
+
 
 module.exports = router;
